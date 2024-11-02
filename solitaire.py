@@ -1,10 +1,7 @@
 from card_elements import Card, Deck, Pile
 from codecarbon import EmissionsTracker
-import pprint
-import random
 
 
-pp = pprint.PrettyPrinter(indent=4)
 
 
 with EmissionsTracker() as tracker:
@@ -92,7 +89,7 @@ with EmissionsTracker() as tracker:
         
 
 
-        def takeTurn(self, verbose=False):
+        def takeTurn(self):
                 
             #Pre: flip up unflipped pile end cards -> do this automatically
             [pile.cards[0].flip() for pile in self.playPiles if len(pile.cards)>0 and not pile.cards[0].flipped]
@@ -155,16 +152,16 @@ with EmissionsTracker() as tracker:
             return False
         
                     
-        def simulate(self, draw = False, verbose=False):
+        def simulate(self, draw = False):
         
             # clear cache if last turn was not card draw
             if not draw:
                 self.deck.cache = []
         
-            turnResult = self.takeTurn(verbose=verbose)
+            turnResult = self.takeTurn()
         
             if turnResult:
-                self.simulate(verbose=verbose)
+                self.simulate()
                     
             else:
                 #End: draw from deck
@@ -175,26 +172,20 @@ with EmissionsTracker() as tracker:
                     if not currentCard in self.deck.cache:
                         self.deck.drawCard()
                         self.deck.cache.append(currentCard)
-                        return self.simulate(draw=True, verbose=verbose)
+                        return self.simulate(draw=True)
 
 
 
     def main():
 
         thisGame = Game()
-        thisGame.simulate(verbose=True)
-        print()
-        pp.pprint(thisGame.getGameElements())
-        print()
+        thisGame.simulate()
 
         if(thisGame.checkIfCompleted()):
             print("Congrats! You won!")
         else:
             print("Sorry, you did not win")
 
-        for card in sorted(thisGame.deck.cards, key=lambda card: card.value):
-            print(card)
-        return
 
     main()
 
