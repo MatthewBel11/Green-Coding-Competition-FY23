@@ -101,17 +101,12 @@ with EmissionsTracker() as tracker:
             for pile in self.playPiles:
                 if len(pile.cards) > 0 and self.addToBlock(pile.cards[0]):
                     card_added = pile.cards.pop(0)
-                    if verbose:
-                        print("Adding play pile card to block: {0}".format(str(card_added)))
                     return True
-                else:
-                    print("Pile has cards")
+
             
             #2: check if cards in deck can be added
             if self.addToBlock(self.deck.getFirstCard()):
                 card_added = self.deck.takeFirstCard()
-                if verbose:
-                    print("Adding card from deck to block: {0}".format(str(card_added)))
                 return True
             
             #3: move kings to open piles
@@ -121,18 +116,12 @@ with EmissionsTracker() as tracker:
                         if len(pile2.cards)>1 and pile2.cards[0].value == "K":
                             card_added = pile2.cards.pop(0)
                             pile.addCard(card_added)
-                            if verbose:
-                                print("Moving {0} from Pile to Empty Pile".format(str(card_added)))
                             return True
                     
                     if self.deck.getFirstCard() is not None and self.deck.getFirstCard().value == "K":
                         card_added = self.deck.takeFirstCard()
                         pile.addCard(card_added)
-                        if verbose:
-                            print("Moving {0} from Deck to Empty Pile".format(str(card_added)))
                         return True
-                else:
-                    print("Pile has cards")
             
             #4: add drawn card to playPiles 
             for pile in self.playPiles:
@@ -140,11 +129,8 @@ with EmissionsTracker() as tracker:
                     if self.checkCardOrder(pile.cards[0],self.deck.getFirstCard()):
                         card_added = self.deck.takeFirstCard()
                         pile.addCard(card_added) 
-                        if verbose:
-                            print("Moving {0} from Deck to Pile".format(str(card_added)))
                         return True
-                else:
-                    print("Pile has cards")
+
                             
             #5: move around cards in playPiles
             for pile1 in self.playPiles:
@@ -161,23 +147,11 @@ with EmissionsTracker() as tracker:
                                     if pile2_downcard_count < pile1_downcard_count:
                                         [pile2.cards.insert(0,card) for card in reversed(cards_to_transfer)]
                                         pile1.cards = pile1.cards[transfer_cards_size:]
-                                        if verbose:
-                                            print("Moved {0} cards between piles: {1}".format(
-                                                transfer_cards_size,
-                                                ", ".join([str(card) for card in cards_to_transfer])
-                                                                                             ))
                                         return True
                                     elif pile1_downcard_count==0 and len(cards_to_transfer) == len(pile1.cards):
                                         [pile2.cards.insert(0,card) for card in reversed(cards_to_transfer)]
                                         pile1.cards = []
-                                        if verbose:
-                                            print("Moved {0} cards between piles: {1}".format(
-                                                transfer_cards_size,
-                                                ", ".join([str(card) for card in cards_to_transfer])
-                                                                                             ))
                                         return True
-                else:
-                    print("Pile has cards")
             return False
         
                     
@@ -198,21 +172,11 @@ with EmissionsTracker() as tracker:
 
                     currentCard = self.deck.cards[0]
 
-                    if currentCard in self.deck.cache:
-                        if verbose:
-                            print("No more moves left!")
-                        return 
-
-                    else:
+                    if not currentCard in self.deck.cache:
                         self.deck.drawCard()
-                        #if verbose:
-                            #print("Drawing new card: {0}".format(str(currentCard)))
                         self.deck.cache.append(currentCard)
                         return self.simulate(draw=True, verbose=verbose)
-                else:
-                    if verbose:
-                        print("No more moves left!")
-                    return
+
 
 
     def main():
