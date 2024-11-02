@@ -11,6 +11,8 @@ with EmissionsTracker() as tracker:
 
     class Game:
 
+        # TODO these are dumb - shouldnt be a variable for each of them
+        # Hashmap or dict or smth for storing them
         x = "A"
         y = "2"
         z = "3"
@@ -40,6 +42,7 @@ with EmissionsTracker() as tracker:
 
         list_of_values = values
 
+        # TODO this is just straight up unnecessary
         print("The cards in your deck are:")
         for i in list_of_values:
             for x in signs:
@@ -57,10 +60,15 @@ with EmissionsTracker() as tracker:
     
         numPlayPiles = 7
     
+        # This creates the cars and the play piles
         def __init__(self):
+            # TODO this loop could be itertools or smth
             self.list_of_cards = [Card(value, suit) for value in range(1, 14) for suit in ["Diamonds", "Hearts", "Clubs", "Spades"]]
+
             self.deck = Deck(self.list_of_values,self.suits)
             self.playPiles = []
+            
+            # TODO another nested loop
             for i in range(self.numPlayPiles):
                 thisPile = Pile()
                 [thisPile.addCard(self.deck.takeFirstCard(flip=False)) for j in range(i+1)]
@@ -69,7 +77,10 @@ with EmissionsTracker() as tracker:
             self.blockPiles = {suit: Pile() for suit in self.suits}
             self.deck.cards[0].flip()
 
+
+
         def getGameElements(self):
+            # TODO new object instantiation every time could be bad
             returnObject = {
                 "deck": str(self.deck),
                 "playPiles": [str(pile) for pile in self.playPiles],
@@ -77,17 +88,27 @@ with EmissionsTracker() as tracker:
             }
             return returnObject
         
+
+
+
         def checkCardOrder(self,higherCard,lowerCard):
             suitsDifferent = self.suits[higherCard.suit] != self.suits[lowerCard.suit]
             valueConsecutive = self.list_of_values[self.list_of_values.index(higherCard.value)-1] == lowerCard.value
             return suitsDifferent and valueConsecutive
     
+
+
+
+
         def checkIfCompleted(self):
             deckEmpty = len(self.deck.cards)==0
             pilesEmpty = all(len(pile.cards)==0 for pile in self.playPiles)
             blocksFull = all(len(pile.cards)==13 for suit,pile in self.blockPiles.items())
             return deckEmpty and pilesEmpty and blocksFull
             
+
+
+
         def addToBlock(self, card):
             if card is None:
                 return False
@@ -105,6 +126,8 @@ with EmissionsTracker() as tracker:
                 else:
                     return False
         
+
+
         def takeTurn(self, verbose=False):
                 
             #Pre: flip up unflipped pile end cards -> do this automatically
@@ -228,18 +251,6 @@ with EmissionsTracker() as tracker:
                     return
 
 
-        # define the bogosort function
-
-        def bogosort(self):
-            arr_values = [card.value for card in self.deck.cards]
-            while not all(arr_values[i] <= arr_values[i + 1] for i in range(len(arr_values) - 1)):
-                random.shuffle(arr_values)
-            sorted_cards = [Card(value, suit) for value, suit in zip(arr_values, [card.suit for card in self.deck.cards])]
-            self.deck.cards = sorted_cards
-            print("Sorted Cards:")
-            for card in sorted_cards:
-                print(card)
-
     def main():
 
         thisGame = Game()
@@ -247,15 +258,16 @@ with EmissionsTracker() as tracker:
         print()
         pp.pprint(thisGame.getGameElements())
         print()
+
         if(thisGame.checkIfCompleted()):
             print("Congrats! You won!")
         else:
             print("Sorry, you did not win")
 
-        sorted_cards = thisGame.bogosort()
-        print("Sorted cards:", sorted_cards)
+        for card in sorted(thisGame.deck.cards, key=lambda card: card.value):
+            print(card)
         return
-    
+
     main()
 
 
