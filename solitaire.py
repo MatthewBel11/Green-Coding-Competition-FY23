@@ -2,24 +2,18 @@ from card_elements import Card, Deck, Pile
 from codecarbon import EmissionsTracker
 
 
-
-
 with EmissionsTracker() as tracker:
-
+    
     class Game:
 
         VALUES = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
-        COLORS = ["red", "black"]
-        SIGNS = ["diamond", "spades", "hearts", "clubs"]   
     
         SUITS = { #keys are unicode symbols for suits
-            u'\u2660': "black",
-            u'\u2665': "red",
-            u'\u2663': "black",
-            u'\u2666': "red",
+            "S" : "black",
+            "H" : "red",
+            "C" : "black",
+            "D" : "red",
         }
-    
-        NUMPLAYPILES = 7
     
         # This creates the cars and the play piles
         def __init__(self):
@@ -30,7 +24,7 @@ with EmissionsTracker() as tracker:
             self.playPiles = []
             
             # TODO another nested loop
-            for i in range(self.NUMPLAYPILES):
+            for i in range(7):
                 thisPile = Pile()
                 [thisPile.addCard(self.deck.takeFirstCard(flip=False)) for j in range(i+1)]
                 thisPile.flipFirstCard()  
