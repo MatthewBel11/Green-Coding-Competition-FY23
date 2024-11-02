@@ -11,70 +11,34 @@ with EmissionsTracker() as tracker:
 
     class Game:
 
-        # TODO these are dumb - shouldnt be a variable for each of them
-        # Hashmap or dict or smth for storing them
-        x = "A"
-        y = "2"
-        z = "3"
-        a = "4"
-        b = "5"
-        c = "6"
-        d = "7"
-        e = "8"
-        f = "9"
-        g = "10"
-        h = "J"
-        i = "Q"
-        j = "K"
-
-        color1 = "red"
-        color2 = "black"
-
-        sign1 = "diamond"
-        sign2 = "spades"
-        sign3 = "hearts"
-        sign4 = "clubs"
-
-
-        values = [x, y, z, a, b, c, d, e, f, g, h, i, j]
-        colors = [color1, color2]
-        signs = [sign1, sign2, sign3, sign4]
-
-        list_of_values = values
-
-        # TODO this is just straight up unnecessary
-        print("The cards in your deck are:")
-        for i in list_of_values:
-            for x in signs:
-                for y in colors:
-                    print("Card: " + i + " Color: " + y + " Symbol: " + x)
-
-            
+        VALUES = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+        COLORS = ["red", "black"]
+        SIGNS = ["diamond", "spades", "hearts", "clubs"]   
     
-        suits = { #keys are unicode symbols for suits
+        SUITS = { #keys are unicode symbols for suits
             u'\u2660': "black",
             u'\u2665': "red",
             u'\u2663': "black",
             u'\u2666': "red",
         }
     
-        numPlayPiles = 7
+        NUMPLAYPILES = 7
     
         # This creates the cars and the play piles
         def __init__(self):
             # TODO this loop could be itertools or smth
             self.list_of_cards = [Card(value, suit) for value in range(1, 14) for suit in ["Diamonds", "Hearts", "Clubs", "Spades"]]
 
-            self.deck = Deck(self.list_of_values,self.suits)
+            self.deck = Deck(self.VALUES,self.SUITS)
             self.playPiles = []
             
             # TODO another nested loop
-            for i in range(self.numPlayPiles):
+            for i in range(self.NUMPLAYPILES):
                 thisPile = Pile()
                 [thisPile.addCard(self.deck.takeFirstCard(flip=False)) for j in range(i+1)]
                 thisPile.flipFirstCard()  
                 self.playPiles.append(thisPile)
-            self.blockPiles = {suit: Pile() for suit in self.suits}
+            self.blockPiles = {suit: Pile() for suit in self.SUITS}
             self.deck.cards[0].flip()
 
 
@@ -92,8 +56,8 @@ with EmissionsTracker() as tracker:
 
 
         def checkCardOrder(self,higherCard,lowerCard):
-            suitsDifferent = self.suits[higherCard.suit] != self.suits[lowerCard.suit]
-            valueConsecutive = self.list_of_values[self.list_of_values.index(higherCard.value)-1] == lowerCard.value
+            suitsDifferent = self.SUITS[higherCard.suit] != self.SUITS[lowerCard.suit]
+            valueConsecutive = self.VALUES[self.VALUES.index(higherCard.value)-1] == lowerCard.value
             return suitsDifferent and valueConsecutive
     
 
@@ -114,7 +78,7 @@ with EmissionsTracker() as tracker:
                 return False
             elif len(self.blockPiles[card.suit].cards)>0:
                 highest_value = self.blockPiles[card.suit].cards[0].value
-                if self.list_of_values[self.list_of_values.index(highest_value)+1] == card.value:
+                if self.VALUES[self.VALUES.index(highest_value)+1] == card.value:
                     self.blockPiles[card.suit].cards.insert(0,card)
                     return True
                 else:
