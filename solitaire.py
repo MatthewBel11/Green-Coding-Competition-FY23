@@ -94,32 +94,34 @@ with EmissionsTracker() as tracker:
                     card_added = pile.cards.pop(0)
                     return True
 
-            
+            first_in_deck = self.deck.getFirstCard()
+
             #2: check if cards in deck can be added
-            if self.addToBlock(self.deck.getFirstCard()):
+            if self.addToBlock(first_in_deck):
                 card_added = self.deck.takeFirstCard()
                 return True
             
             #3: move kings to open piles
-            for pile in self.playPiles:
-                if len(pile.cards)==0: #pile has no cards
-                    for pile2 in self.playPiles:
-                        if len(pile2.cards)>1 and pile2.cards[0].value == "K":
-                            card_added = pile2.cards.pop(0)
-                            pile.addCard(card_added)
-                            return True
-                    
-                    if self.deck.getFirstCard() is not None and self.deck.getFirstCard().value == "K":
-                        card_added = self.deck.takeFirstCard()
+            empty_piles = [pile for pile in self.playPiles if len(pile.cards) == 0]
+            # If pile is empty, look for a king and put it on it
+            for pile in empty_piles:
+                for pile2 in self.playPiles:
+                    if len(pile2.cards)>1 and pile2.cards[0].value == "K":
+                        card_added = pile2.cards.pop(0)
                         pile.addCard(card_added)
                         return True
+                    
+                if first_in_deck is not None and first_in_deck.value == "K":
+                    card_added = self.deck.takeFirstCard()
+                    pile.addCard(card_added)
+                    return True
             
-            #4: add drawn card to playPiles 
-            for pile in self.playPiles:
-                if len(pile.cards)>0 and self.deck.getFirstCard() is not None:
-                    if self.checkCardOrder(pile.cards[0],self.deck.getFirstCard()):
+            #4: add drawn card to playPiles
+            if first_in_deck is not None:
+                for non_empty_pile in [pile for pile in self.playPiles if len(pile.cards) > 0]:
+                    if self.checkCardOrder(non_empty_pile.cards[0],first_in_deck):
                         card_added = self.deck.takeFirstCard()
-                        pile.addCard(card_added) 
+                        non_empty_pile.addCard(card_added) 
                         return True
 
                             
