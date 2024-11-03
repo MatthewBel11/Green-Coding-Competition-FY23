@@ -1,7 +1,6 @@
 from card_elements import Card, Deck, Pile
 from codecarbon import EmissionsTracker
 
-
 with EmissionsTracker() as tracker:
     
     class Game:
@@ -9,17 +8,14 @@ with EmissionsTracker() as tracker:
         VALUES = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
     
         SUITS = { #keys are unicode symbols for suits
-            "S" : "black",
-            "H" : "red",
-            "C" : "black",
-            "D" : "red",
+            "S" : "B",
+            "H" : "R",
+            "C" : "B",
+            "D" : "R",
         }
     
         # This creates the cars and the play piles
         def __init__(self):
-            # TODO this loop could be itertools or smth
-            self.list_of_cards = [Card(value, suit) for value in range(1, 14) for suit in ["Diamonds", "Hearts", "Clubs", "Spades"]]
-
             self.deck = Deck(self.VALUES,self.SUITS)
             self.playPiles = []
             
@@ -74,12 +70,20 @@ with EmissionsTracker() as tracker:
 
         def takeTurn(self):
                 
-            #Pre: flip up unflipped pile end cards -> do this automatically
-            [pile.cards[0].flip() for pile in self.playPiles if len(pile.cards)>0 and not pile.cards[0].flipped]
-         
-            #1: check if there are any play pile cards you can play to block piles
+            # TODO this should probably just store indices, not duplicate objects
+            empty_piles, non_empty_piles = [], []
             for pile in self.playPiles:
-                if len(pile.cards) > 0 and self.addToBlock(pile.cards[0]):
+                if len(pile.cards)==0:
+                    empty_piles.append(pile)
+                else:
+                    non_empty_piles.append(pile)
+
+            #Pre: flip up unflipped pile end cards -> do this automatically
+            [pile.cards[0].flip() for pile in non_empty_piles if not pile.cards[0].flipped]
+
+            #1: check if there are any play pile cards you can play to block piles
+            for pile in non_empty_piles:
+                if self.addToBlock(pile.cards[0]):
                     card_added = pile.cards.pop(0)
                     return True
 
@@ -91,10 +95,8 @@ with EmissionsTracker() as tracker:
                 return True
             
             #3: move kings to open piles
-            empty_piles = [pile for pile in self.playPiles if len(pile.cards) == 0]
-            # If pile is empty, look for a king and put it on it
             for pile in empty_piles:
-                for pile2 in self.playPiles:
+                for pile2 in non_empty_piles:
                     if len(pile2.cards)>1 and pile2.cards[0].value == "K":
                         card_added = pile2.cards.pop(0)
                         pile.addCard(card_added)
@@ -107,31 +109,33 @@ with EmissionsTracker() as tracker:
             
             #4: add drawn card to playPiles
             if first_in_deck is not None:
-                for non_empty_pile in [pile for pile in self.playPiles if len(pile.cards) > 0]:
+                for non_empty_pile in non_empty_piles:
                     if self.checkCardOrder(non_empty_pile.cards[0],first_in_deck):
                         card_added = self.deck.takeFirstCard()
                         non_empty_pile.addCard(card_added) 
                         return True
 
+            flipped_card_piles = [pile for pile in non_empty_piles if len(pile.getFlippedCards())]
                             
             #5: move around cards in playPiles
-            for i, pile1 in enumerate(self.playPiles):
+            for i, pile1 in enumerate(flipped_card_piles):
                 pile1_flipped_cards = pile1.getFlippedCards()
-                if len(pile1_flipped_cards)>0:
-                    for pile2 in [pile for j, pile in enumerate(self.playPiles) if j != i and len(pile.getFlippedCards()) > 0]:
-                        for transfer_cards_size in range(1,len(pile1_flipped_cards)+1):
-                            cards_to_transfer = pile1_flipped_cards[:transfer_cards_size]
-                            if self.checkCardOrder(pile2.cards[0],cards_to_transfer[-1]):
-                                pile1_downcard_count = len(pile1.cards) - len(pile1_flipped_cards)
-                                pile2_downcard_count = len(pile2.cards) - len(pile2.getFlippedCards())
-                                if pile2_downcard_count < pile1_downcard_count:
-                                    [pile2.cards.insert(0,card) for card in reversed(cards_to_transfer)]
-                                    pile1.cards = pile1.cards[transfer_cards_size:]
-                                    return True
-                                elif pile1_downcard_count==0 and len(cards_to_transfer) == len(pile1.cards):
-                                    [pile2.cards.insert(0,card) for card in reversed(cards_to_transfer)]
-                                    pile1.cards = []
-                                    return True
+                for j, pile2 in enumerate(flipped_card_piles):
+                    if i == j:
+                        continue
+                    for transfer_cards_size in range(1,len(pile1_flipped_cards)+1):
+                        cards_to_transfer = pile1_flipped_cards[:transfer_cards_size]
+                        if self.checkCardOrder(pile2.cards[0],cards_to_transfer[-1]):
+                            pile1_downcard_count = len(pile1.cards) - len(pile1_flipped_cards)
+                            pile2_downcard_count = len(pile2.cards) - len(pile2.getFlippedCards())
+                            if pile2_downcard_count < pile1_downcard_count:
+                                [pile2.cards.insert(0,card) for card in reversed(cards_to_transfer)]
+                                pile1.cards = pile1.cards[transfer_cards_size:]
+                                return True
+                            elif pile1_downcard_count==0 and len(cards_to_transfer) == len(pile1.cards):
+                                [pile2.cards.insert(0,card) for card in reversed(cards_to_transfer)]
+                                pile1.cards = []
+                                return True
             return False
         
 
@@ -151,25 +155,6 @@ with EmissionsTracker() as tracker:
                         return
     
 
-
-
-    def main():
-        
+    if __name__ == "__main__":
         thisGame = Game()
         thisGame.simulate()
-
-        if(thisGame.checkIfCompleted()):
-            print("Congrats! You won!")
-        else:
-            print("Sorry, you did not win")
-
-
-    main()
-
-
-
-
-
-
-
-

@@ -45,6 +45,7 @@ class Pile:
 class Deck: 
     
     def __init__(self, values, suits):
+        random.seed(0)
         self.cards = []
         self.cache = []
         self.populate(values,suits)
@@ -60,7 +61,6 @@ class Deck:
                 self.cards.append(thisCard)  
     
     def shuffle(self):
-        random.seed(0)
         random.shuffle(self.cards)
     
     def getFirstCard(self):
