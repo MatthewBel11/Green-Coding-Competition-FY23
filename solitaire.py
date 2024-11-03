@@ -134,28 +134,22 @@ with EmissionsTracker() as tracker:
                                     return True
             return False
         
-                    
-        def simulate(self, draw = False):
-        
-            # clear cache if last turn was not card draw
-            if not draw:
-                self.deck.cache = []
-        
-            turnResult = self.takeTurn()
-        
-            if turnResult:
-                self.simulate()
-                    
-            else:
-                #End: draw from deck
-                if len(self.deck.cards)>0:
 
+        def simulate(self):
+            self.deck.cache = []
+        
+            while True:
+                turnResult = self.takeTurn()
+
+                if turnResult:
+                    self.deck.cache = []
+                elif len(self.deck.cards)>0:
                     currentCard = self.deck.cards[0]
-
                     if not currentCard in self.deck.cache:
                         self.deck.drawCard()
                         self.deck.cache.append(currentCard)
-                        return self.simulate(draw=True)
+                        return
+    
 
 
 
