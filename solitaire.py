@@ -31,18 +31,7 @@ with EmissionsTracker() as tracker:
                 self.playPiles.append(thisPile)
             self.blockPiles = {suit: Pile() for suit in self.SUITS}
             self.deck.cards[0].flip()
-
-
-
-        def getGameElements(self):
-            # TODO new object instantiation every time could be bad
-            returnObject = {
-                "deck": str(self.deck),
-                "playPiles": [str(pile) for pile in self.playPiles],
-                "blockPiles": {suit: str(pile) for suit, pile in self.blockPiles.items()}
-            }
-            return returnObject
-        
+       
 
 
 
@@ -126,25 +115,23 @@ with EmissionsTracker() as tracker:
 
                             
             #5: move around cards in playPiles
-            for pile1 in self.playPiles:
+            for i, pile1 in enumerate(self.playPiles):
                 pile1_flipped_cards = pile1.getFlippedCards()
                 if len(pile1_flipped_cards)>0:
-                    for pile2 in self.playPiles:
-                        pile2_flipped_cards = pile2.getFlippedCards()
-                        if pile2 is not pile1 and len(pile2_flipped_cards)>0:
-                            for transfer_cards_size in range(1,len(pile1_flipped_cards)+1):
-                                cards_to_transfer = pile1_flipped_cards[:transfer_cards_size]
-                                if self.checkCardOrder(pile2.cards[0],cards_to_transfer[-1]):
-                                    pile1_downcard_count = len(pile1.cards) - len(pile1_flipped_cards)
-                                    pile2_downcard_count = len(pile2.cards) - len(pile2_flipped_cards)
-                                    if pile2_downcard_count < pile1_downcard_count:
-                                        [pile2.cards.insert(0,card) for card in reversed(cards_to_transfer)]
-                                        pile1.cards = pile1.cards[transfer_cards_size:]
-                                        return True
-                                    elif pile1_downcard_count==0 and len(cards_to_transfer) == len(pile1.cards):
-                                        [pile2.cards.insert(0,card) for card in reversed(cards_to_transfer)]
-                                        pile1.cards = []
-                                        return True
+                    for pile2 in [pile for j, pile in enumerate(self.playPiles) if j != i and len(pile.getFlippedCards()) > 0]:
+                        for transfer_cards_size in range(1,len(pile1_flipped_cards)+1):
+                            cards_to_transfer = pile1_flipped_cards[:transfer_cards_size]
+                            if self.checkCardOrder(pile2.cards[0],cards_to_transfer[-1]):
+                                pile1_downcard_count = len(pile1.cards) - len(pile1_flipped_cards)
+                                pile2_downcard_count = len(pile2.cards) - len(pile2.getFlippedCards())
+                                if pile2_downcard_count < pile1_downcard_count:
+                                    [pile2.cards.insert(0,card) for card in reversed(cards_to_transfer)]
+                                    pile1.cards = pile1.cards[transfer_cards_size:]
+                                    return True
+                                elif pile1_downcard_count==0 and len(cards_to_transfer) == len(pile1.cards):
+                                    [pile2.cards.insert(0,card) for card in reversed(cards_to_transfer)]
+                                    pile1.cards = []
+                                    return True
             return False
         
                     
@@ -173,7 +160,7 @@ with EmissionsTracker() as tracker:
 
 
     def main():
-
+        
         thisGame = Game()
         thisGame.simulate()
 
