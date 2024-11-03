@@ -60,6 +60,7 @@ class Deck:
                 self.cards.append(thisCard)  
     
     def shuffle(self):
+        random.seed(0)
         random.shuffle(self.cards)
     
     def getFirstCard(self):
